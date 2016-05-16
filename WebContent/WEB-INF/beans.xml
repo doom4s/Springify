@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:util="http://www.springframework.org/schema/util" xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-4.2.xsd
+		http://www.springframework.org/schema/task http://www.springframework.org/schema/task/spring-task-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-4.2.xsd
+		http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util-4.2.xsd">
+
+	<context:component-scan base-package="net.netconomy.training.spring" />
+
+	<!-- adding property file -->
+	<bean id="discountPropertyConfigurer"
+		class="org.springframework.context.support.PropertySourcesPlaceholderConfigurer">
+		<property name="location" value="/WEB-INF/texts.properties"/>
+		<property name="ignoreResourceNotFound" value="false" />
+		<property name="ignoreUnresolvablePlaceholders" value="true" />
+	</bean>
+
+	<bean name="dummyDevice"
+		class="net.netconomy.training.spring.basic.device.impl.DummyDevice"
+		autowire="constructor" scope="prototype" init-method="getSensors"
+		destroy-method="deleteObservers" > 
+		<constructor-arg value="${DummyDeviceText}" />
+		<constructor-arg name="sensors" ref="sensorsSet" />
+	</bean>
+
+	<!-- creating a set of sensor beans -->
+	<util:set id="sensorsSet" value-type="java.util.HashSet">
+		<ref bean="gravitySensor" />
+		<ref bean="pressureSensor" />
+		<ref bean="proximitySensor" />
+	</util:set>
+
+	<!-- bean declarations -->
+	<bean name="gravitySensor"
+		class="net.netconomy.training.spring.basic.sensor.impl.GravitySensor"
+		scope="prototype">
+		<constructor-arg name="clockTickResolution" value="${gravityValue}" />
+		<constructor-arg name="isActive" value="true" />
+	</bean>
+	<bean name="pressureSensor"
+		class="net.netconomy.training.spring.basic.sensor.impl.PressureSensor"
+		scope="prototype">
+		<constructor-arg name="clockTickResolution" value="${pressureValue}" />
+		<constructor-arg name="isActive" value="true" />
+	</bean>
+	<bean name="proximitySensor"
+		class="net.netconomy.training.spring.basic.sensor.impl.ProximitySensor"
+		scope="prototype">
+		<constructor-arg name="clockTickResolution" value="${proximityValue}" />
+		<constructor-arg name="isActive" value="true" />
+	</bean>
+
+	<!-- importing thread beans -->
+	<import resource="schedulers.xml" />
+</beans>
